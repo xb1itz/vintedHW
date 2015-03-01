@@ -27,28 +27,28 @@ $(function() {
         });
     }
 
+    //Check of shot is within a viewport and render it by adding a .show class
+    function revealShots() {
+      $.each(hiddenShots, function(index, shot) {
+
+          if (shot.offset().top < shotsContainer.get(0).clientHeight) {
+
+              shot.addClass('show');
+
+              //Remove reference to a shot thus it is no longer required
+              delete hiddenShots[shot];
+          }
+
+      })
+    };
+
     //Render a batch of shots
     function renderBatch() {
 
         var preloadOffsetRatio = 4;
         var isHighDpi = window.devicePixelRatio > 1;
         var container = shotsContainer.get(0);
-        var offsetBottom = container.scrollHeight - container.scrollTop - container.clientHeight;
-
-
-        //Check of shot is within a viewport and render it by adding a .show class
-        $.each(hiddenShots, function(index, element) {
-
-            if (element.offset < container.scrollTop + container.clientHeight) {
-
-                element.shot.addClass('show');
-
-                //Remove reference to a shot thus it is no longer required
-                delete hiddenShots[element.shot];
-            }
-
-        })
-
+        var offsetBottom = container.scrollHeight - container.scrollTop - container.clientHeight; 
 
         //Check if enough shots preloaded according to preloading offset 
         if (offsetBottom <= preloadOffsetRatio * container.clientHeight && !isRendering) {
@@ -82,10 +82,10 @@ $(function() {
                     shotsContainer.append(shot);
 
                     //Push shot to temporary aray for scrolling animation
-                    hiddenShots.push({
-                        offset: shot.offset().top + container.scrollTop,
-                        shot: shot
-                    })
+                    hiddenShots.push(shot);
+
+                    //Reveal shots in viewport
+                    revealShots();
 
                     //Display element after image has been loaded 
                     if (imageUrl) {
@@ -124,10 +124,10 @@ $(function() {
         }
     };
 
+
     /*======================================
     =            Initialization            =
     ======================================*/
-
     var favouritedShots = JSON.parse(localStorage.favouritedShots || '{}');
     var shotsContainer = $('#shots');
     var isRendering = false;
@@ -135,6 +135,7 @@ $(function() {
     var page = 1;
     var scrollTimeout;
     var wheelTimeout;
+    var resizeTimeout;
     var shotTemplate;
 
     getShotTemplate().then(function(response) {
@@ -172,7 +173,6 @@ $(function() {
 
         //Update local storage with new values
         localStorage.favouritedShots = JSON.stringify(favouritedShots);
-
     })
 
 
@@ -188,6 +188,7 @@ $(function() {
 
         scrollTimeout = setTimeout(function() {
             renderBatch();
+            revealShots();
         }, 200);
     });
 
@@ -202,6 +203,7 @@ $(function() {
             if (!wheelTimeout) {
 
                 renderBatch();
+                revealShots();
 
                 wheelTimeout = setTimeout(function() {
                     clearTimeout(wheelTimeout);
@@ -209,6 +211,19 @@ $(function() {
                 }, 500);
             }
         }
+    });
+
+    $(window).resize(function () {
+
+        //Prevent resize event rapid firing with timeout
+        if (!!resizeTimeout) {
+            clearTimeout(resizeTimeout);
+        }
+
+        resizeTimeout = setTimeout(function () {
+            renderBatch();
+            revealShots();
+        }, 200);
     });
 
 
