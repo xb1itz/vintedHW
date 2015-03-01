@@ -153,6 +153,9 @@ $(function() {
     ===============================================*/
     shotsContainer.on('click', function(event) {
 
+    		//Ignore event if no button was clicked
+    		if (!$(event.target).is('button')) return;
+
         var shotElement = $(event.target).parents('.shot');
         var shotId = $(shotElement).attr('id');
 
