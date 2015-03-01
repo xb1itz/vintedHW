@@ -144,16 +144,24 @@ main .shots {
 }
 main .shots .shot {
   flex-basis: 25%;
-  opacity: 0;
+  position: relative;
   -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
   -webkit-transform: translatez(0);
   transform: translatez(0);
-  -webkit-transition: opacity 0.3s;
-  -moz-transition: opacity 0.3s;
-  transition: opacity 0.3s;
 }
-main .shots .shot.loaded.show {
+main .shots .shot:before {
+  content: "";
+  position: absolute;
+  display: block;
+  right: 1.2em;
+  top: 1.2em;
+  bottom: 0;
+  left: 0;
+  background: lightgray;
+  border-radius: 3px;
+}
+main .shots .shot.loaded.show .tile {
   opacity: 1;
 }
 main .shots .shot.favourited .tile:after {
@@ -169,10 +177,14 @@ main .shots .shot.favourited .tile:after {
 }
 main .shots .shot .tile {
   position: relative;
+  opacity: 0;
   margin: 1.2em 1.2em 0 0;
   border-radius: 3px;
   overflow: hidden;
   box-shadow: 0 0 7px -3px black;
+  -webkit-transition: opacity 0.3s;
+  -moz-transition: opacity 0.3s;
+  transition: opacity 0.3s;
 }
 main .shots .shot .tile:before {
   content: '';
